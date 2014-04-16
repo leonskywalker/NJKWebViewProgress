@@ -13,6 +13,11 @@ const float NJKInitialProgressValue = 0.1f;
 const float NJKInteractiveProgressValue = 0.5f;
 const float NJKFinalProgressValue = 0.9f;
 
+
+@interface NJKWebViewProgress ()
+@property (nonatomic,strong) NSTimer *fakeTimer;
+@end
+
 @implementation NJKWebViewProgress
 {
     NSUInteger _loadingCount;
@@ -52,6 +57,7 @@ const float NJKFinalProgressValue = 0.9f;
 - (void)completeProgress
 {
     [self setProgress:1.0];
+    [self.fakeTimer invalidate];
 }
 
 - (void)setProgress:(float)progress
@@ -73,7 +79,24 @@ const float NJKFinalProgressValue = 0.9f;
     _maxLoadCount = _loadingCount = 0;
     _interactive = NO;
     [self setProgress:0.0];
+    [self.fakeTimer invalidate];
 }
+
+#pragma mark - fake progress animation
+- (void) animateProgressWhileLoading{
+    if (!self.fakeTimer || ![self.fakeTimer isValid]) {
+        self.fakeTimer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(fakeProgress) userInfo:nil repeats:YES];
+    }
+}
+
+- (void) fakeProgress{
+    float upperLimit = _interactive ? NJKFinalProgressValue : NJKInteractiveProgressValue;
+    if (self.progress < upperLimit) {
+        self.progress += (upperLimit - self.progress)/2;
+    }
+    
+}
+
 
 #pragma mark -
 #pragma mark UIWebViewDelegate
@@ -116,6 +139,7 @@ const float NJKFinalProgressValue = 0.9f;
     _maxLoadCount = fmax(_maxLoadCount, _loadingCount);
 
     [self startProgress];
+    [self animateProgressWhileLoading];
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
@@ -126,6 +150,7 @@ const float NJKFinalProgressValue = 0.9f;
     
     _loadingCount--;
     [self incrementProgress];
+    [self animateProgressWhileLoading];
     
     NSString *readyState = [webView stringByEvaluatingJavaScriptFromString:@"document.readyState"];
 
@@ -151,6 +176,7 @@ const float NJKFinalProgressValue = 0.9f;
     
     _loadingCount--;
     [self incrementProgress];
+    [self animateProgressWhileLoading];
 
     NSString *readyState = [webView stringByEvaluatingJavaScriptFromString:@"document.readyState"];
 
