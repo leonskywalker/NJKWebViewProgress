@@ -10,8 +10,8 @@
 NSString *completeRPCURL = @"webviewprogressproxy:///complete";
 
 const float NJKInitialProgressValue = 0.1f;
-const float NJKInteractiveProgressValue = 0.5f;
-const float NJKFinalProgressValue = 0.9f;
+const float NJKInteractiveProgressValue = 0.75f;
+const float NJKFinalProgressValue = 0.98f;
 
 
 @interface NJKWebViewProgress ()
@@ -24,6 +24,8 @@ const float NJKFinalProgressValue = 0.9f;
     NSUInteger _maxLoadCount;
     NSURL *_currentURL;
     BOOL _interactive;
+    
+    NSUInteger _stuckCount;
 }
 
 - (id)init
@@ -78,6 +80,7 @@ const float NJKFinalProgressValue = 0.9f;
 {
     _maxLoadCount = _loadingCount = 0;
     _interactive = NO;
+    _stuckCount = 0;
     [self setProgress:0.0];
     [self.fakeTimer invalidate];
 }
@@ -85,14 +88,20 @@ const float NJKFinalProgressValue = 0.9f;
 #pragma mark - fake progress animation
 - (void) animateProgressWhileLoading{
     if (!self.fakeTimer || ![self.fakeTimer isValid]) {
-        self.fakeTimer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(fakeProgress) userInfo:nil repeats:YES];
+        self.fakeTimer = [NSTimer scheduledTimerWithTimeInterval:0.3 target:self selector:@selector(fakeProgress) userInfo:nil repeats:YES];
     }
 }
 
 - (void) fakeProgress{
     float upperLimit = _interactive ? NJKFinalProgressValue : NJKInteractiveProgressValue;
     if (self.progress < upperLimit) {
-        self.progress += (upperLimit - self.progress)/2;
+        self.progress += (upperLimit - self.progress)/3;
+    }else{
+        _stuckCount ++;
+        //经验值
+        if (_stuckCount > 20) {
+            [self completeProgress];
+        }
     }
     
 }

@@ -47,7 +47,8 @@
 
     if (progress >= 1.0) {
         [UIView animateWithDuration:animated ? _fadeAnimationDuration : 0.0 delay:_fadeOutDelay options:UIViewAnimationOptionCurveEaseInOut animations:^{
-            _progressBarView.alpha = 0.0;
+            self.alpha = 0.0;
+            
         } completion:^(BOOL completed){
             CGRect frame = _progressBarView.frame;
             frame.size.width = 0;
@@ -56,7 +57,8 @@
     }
     else {
         [UIView animateWithDuration:animated ? _fadeAnimationDuration : 0.0 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
-            _progressBarView.alpha = 1.0;
+            //_progressBarView.alpha = 1.0;
+            self.alpha = 1.0;
         } completion:nil];
     }
 }
