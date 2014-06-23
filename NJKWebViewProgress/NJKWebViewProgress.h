@@ -5,6 +5,8 @@
 //  Copyright (c) 2013 Satoshi Asano. All rights reserved.
 //
 
+//forked by 半藏 at https://github.com/leonskywalker/NJKWebViewProgress
+
 #import <Foundation/Foundation.h>
 
 #undef njk_weak

@@ -94,12 +94,12 @@ const float NJKFinalProgressValue = 0.98f;
 
 - (void) fakeProgress{
     float upperLimit = _interactive ? NJKFinalProgressValue : NJKInteractiveProgressValue;
-    if (self.progress < upperLimit) {
+    if (self.progress < upperLimit-0.01) {
         self.progress += (upperLimit - self.progress)/3;
     }else{
         _stuckCount ++;
         //经验值
-        if (_stuckCount > 20) {
+        if (_stuckCount > 30) {
             [self completeProgress];
         }
     }
@@ -196,7 +196,7 @@ const float NJKFinalProgressValue = 0.98f;
         [webView stringByEvaluatingJavaScriptFromString:waitForCompleteJS];
     }
     
-    BOOL isNotRedirect = _currentURL && [_currentURL isEqual:webView.request.mainDocumentURL];
+    BOOL isNotRedirect = _currentURL && (!webView.request.mainDocumentURL || [_currentURL isEqual:webView.request.mainDocumentURL]);
     BOOL complete = [readyState isEqualToString:@"complete"];
     if (complete && isNotRedirect) {
         [self completeProgress];
